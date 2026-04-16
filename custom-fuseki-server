@@ -46,11 +46,11 @@ then
 JAR1="$FUSEKI_HOME/fuseki-server.jar"
 JAR2="$FUSEKI_HOME/jena-fuseki-server-*.jar"
 JAR=""
-
 for J in "$JAR1" "$JAR2"
 do
     # Expand
     J="$(echo $J)"
+    echo "Trying $J$"
     if [ -e "$J" ]
     then
 	JAR="$J"
@@ -113,8 +113,8 @@ then
     # Otherwise, the server will default to a built-in.
     LOGGING="-Dlog4j.configurationFile=$DFT_LOG_CONF"
 fi
-
-CP="$CP:/app/target/*"
+export TENSOR_CP="${TENSOR_CP:-"/app/target/*"}"
+CP="$CP:$TENSOR_CP"
 echo "Running with CP=$CP"
 if [ -n "$LOGGING" ]
 then
