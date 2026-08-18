@@ -8,6 +8,7 @@ import org.apache.jena.datatypes.DatatypeFormatException;
 import org.apache.jena.graph.impl.LiteralLabel;
 import org.nd4j.linalg.api.buffer.DataType;
 import org.nd4j.linalg.api.ndarray.INDArray;
+import pl.edu.pw.mini.jena.datatensor.TimingUtil;
 import pl.edu.pw.mini.jena.datatensor.datatypes.BaseDataTensor;
 import pl.edu.pw.mini.jena.datatensor.datatypes.utils.jackson.JSONData;
 import pl.edu.pw.mini.jena.datatensor.datatypes.utils.mapper.NumericMapper;
@@ -35,13 +36,16 @@ public class NumericDataTensor extends BaseDataTensor {
 
     @Override
     public Object parse(String lexicalForm) throws DatatypeFormatException {
+        TimingUtil.timer().startTimer("tensorFromString");
         ObjectMapper objectMapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES, true)
                 .configure(DeserializationFeature.ACCEPT_FLOAT_AS_INT, false)
                 .configure(MapperFeature.ALLOW_COERCION_OF_SCALARS, false);
 
         try {
             JSONData jsonData = objectMapper.readValue(lexicalForm, JSONData.class);
-            return NumericMapper.mapJSONDataToINDArray(jsonData);
+            var ndArray = NumericMapper.mapJSONDataToINDArray(jsonData);
+            TimingUtil.timer().stopTimer("tensorFromString");
+            return ndArray;
         } catch (IllegalArgumentException | JsonProcessingException e) {
             throw new DatatypeFormatException("Invalid value for NumericDataTensor: " + lexicalForm + "\n" + e.getMessage());
         }
